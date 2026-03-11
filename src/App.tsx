@@ -8,7 +8,8 @@ import {
   Menu, 
   X,
   LayoutDashboard,
-  LogIn
+  LogIn,
+  AlertCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { AuthProvider, useAuth } from './components/AuthContext';
@@ -222,6 +223,7 @@ const Footer = () => {
 
 const AppContent = () => {
   const [activeTab, setActiveTab] = useState('home');
+  const [showSOSConfirm, setShowSOSConfirm] = useState(false);
   const { user, loading } = useAuth();
 
   if (loading) {
@@ -291,7 +293,7 @@ const AppContent = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
+    <div className="min-h-screen flex flex-col bg-slate-50 relative">
       <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
       <main className="flex-1">
         <AnimatePresence mode="wait">
@@ -307,6 +309,63 @@ const AppContent = () => {
         </AnimatePresence>
       </main>
       <Footer />
+
+      {/* Floating SOS Button */}
+      <div className="fixed bottom-8 right-8 z-[1000]">
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={() => setShowSOSConfirm(true)}
+          className="bg-red-600 text-white w-16 h-16 rounded-full shadow-2xl flex items-center justify-center border-4 border-white group relative"
+        >
+          <Phone className="w-8 h-8 animate-pulse" />
+          <span className="absolute -top-12 right-0 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+            EMERGENCY SOS
+          </span>
+        </motion.button>
+      </div>
+
+      {/* SOS Confirmation Modal */}
+      <AnimatePresence>
+        {showSOSConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[2000] flex items-center justify-center px-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl"
+            >
+              <div className="bg-red-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <AlertCircle className="w-10 h-10 text-red-600" />
+              </div>
+              <h3 className="text-2xl font-display font-bold text-slate-900 mb-2">Emergency SOS</h3>
+              <p className="text-slate-600 mb-8">Are you sure you want to call emergency services immediately?</p>
+              
+              <div className="space-y-3">
+                <a
+                  href="tel:112"
+                  onClick={() => setShowSOSConfirm(false)}
+                  className="w-full bg-red-600 text-white font-bold py-4 rounded-xl flex items-center justify-center hover:bg-red-700 transition-colors shadow-lg shadow-red-200"
+                >
+                  <Phone className="mr-2 w-5 h-5" />
+                  Call Now (112)
+                </a>
+                <button
+                  onClick={() => setShowSOSConfirm(false)}
+                  className="w-full bg-slate-100 text-slate-600 font-bold py-4 rounded-xl hover:bg-slate-200 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
